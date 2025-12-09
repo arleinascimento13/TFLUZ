@@ -1,0 +1,64 @@
+﻿@page "/movimentacoes"
+@using TFLUZ.Application.DTO
+@using TFLUZ.Components.Shared
+@using TFLUZ.Core.Models
+
+@rendermode InteractiveServer
+
+<PageTitle>Movimentações</PageTitle>
+
+<h1>@Title</h1>
+
+<Grid 
+    @ref="grid"
+      TItem="Movimentacao"
+      Class="table table-striped table-bordered"
+      AllowFiltering="false"
+      Responsive="true"
+      AllowPaging="true"
+      AutoHidePaging="true"
+      RowClass="DefinirCorLinha"
+      DataProvider="MovimentacoesDataProvider">
+    <GridColumns>
+
+        <!-- DATA -->
+        <GridColumn TItem="Movimentacao" HeaderText="Data">
+            @context.Data.ToString("dd/MM/yyyy")
+        </GridColumn>
+
+        <!-- VALOR FORMATADO -->
+        <GridColumn TItem="Movimentacao" HeaderText="Valor (R$)">
+            @context.Valor.ToString("C2")
+        </GridColumn>
+
+        <!-- STATUS (PENDENTE / FINALIZADA) -->
+        <GridColumn TItem="Movimentacao" HeaderText="Status">
+            @context.Status.Nome
+        </GridColumn>
+
+        <!-- CLASSIFICAÇÃO (RECEITA / DESPESA) -->
+        <GridColumn TItem="Movimentacao" HeaderText="Tipo">
+            @((int)context.Classificacao == 1 ? "RECEITA" : "DESPESA")
+        </GridColumn>
+    </GridColumns>
+</Grid>
+
+<Button Color="ButtonColor.Primary" @onclick="OpenModal">Nova Movimentação</Button>
+
+<Modal @ref="modal"
+       Title="Nova movimentação"
+       UseStaticBackdrop="true"
+       CloseOnEscape="false"
+       IsVerticallyCentered="true"
+       IsScrollable="true">
+    <BodyTemplate>
+        <MovimentacaoModal @ref="modalComponent"
+                           Title="Nova Movimentação"
+                           IsOpen="true"
+                           OnSave="ReceberMovimentacao" />
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="CloseModal">Cancelar</Button>
+        <Button Color="ButtonColor.Primary" @onclick="() => modalComponent.Salvar()">Salvar</Button>
+    </FooterTemplate>
+</Modal>

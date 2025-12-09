@@ -1,0 +1,120 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using TFLUZ.Application.DTO
+@using TFLUZ.Core.Models
+
+<EditForm Model="@model" OnValidSubmit="@Salvar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="row g-3">
+
+        <!-- Valor -->
+        <div class="col-12">
+            <label class="form-label">Valor da movimentação:</label>
+            <CurrencyInput @bind-Value="model.Valor"
+                           TValue="decimal"
+                           Locale="pt-BR" />
+            <ValidationMessage For="@(() => model.Valor)" />
+        </div>
+
+        <!-- Data -->
+        <div class="col-12">
+            <label class="form-label">Data:</label>
+            <DateInput @bind-Value="model.Data"
+                       TValue="DateTime" />
+            <ValidationMessage For="@(() => model.Data)" />
+        </div>
+
+        <!-- Descrição -->
+        @* <div class="col-12">
+            <label class="form-label">Descrição:</label>
+
+            <Dropdown>
+                <DropdownToggleButton>
+                    @(string.IsNullOrEmpty(model.Descricao)
+                                        ? "Selecione um item"
+                                        : model.Descricao)
+                </DropdownToggleButton>
+
+                <DropdownMenu>
+                    @foreach (var item in listaItens)
+                    {
+                        <DropdownItem Type="DropdownItemType.Button"
+                                      @onclick="() => SelecionarItem(item)">
+                            @item
+                        </DropdownItem>
+                    }
+                </DropdownMenu>
+            </Dropdown>
+
+            <ValidationMessage For="@(() => model.Descricao)" />
+        </div> *@
+
+        <!-- Observação -->
+        <div class="col-12">
+            <label class="form-label">Observação:</label>
+            <textarea class="form-control"
+                      rows="3"
+                      maxlength="500"
+                      @bind="model.Observacao"></textarea>
+            <ValidationMessage For="@(() => model.Observacao)" />
+        </div>
+
+        <!-- Status -->
+        <div class="col-12">
+            <CheckboxInput Label="Pendente?"
+                           Id="pendenteCheck"
+                           @bind-Value="model.Pendente" />
+        </div>
+
+        <!-- Botão -->
+        <div class="col-12">
+            <Button Color="ButtonColor.Primary" Type="ButtonType.Submit" IsFullWidth="true">
+                Salvar
+            </Button>
+        </div>
+
+    </div>
+</EditForm>
+
+@code {
+    // parâmetros do modal
+    [Parameter] public string Title { get; set; }
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnOpen { get; set; }
+    [Parameter] public EventCallback<Movimentacao> OnSave { get; set; }
+
+    private MovimentacaoRequestDTO model = new MovimentacaoRequestDTO();
+
+    // campos do formulário
+    private DateTime Data = DateTime.Now;
+    private decimal? Valor = null;
+    private bool ehPendente = false;
+    private string Observacao = "";
+    private string itemSelecionado;
+
+    // private void SelecionarItem(string item)
+    // {
+    //     itemSelecionado = item;
+    // }
+
+    public async Task Salvar()
+    {
+        var nova = new Movimentacao
+        {
+            Valor = Valor ?? 0,
+            Data = Data,
+            // Descricao = new DescricaoMovimentacao { Nome = itemSelecionado },
+            Observacao = Observacao,
+            Status = ehPendente
+                ? new StatusMovimentacao { Nome = "Pendente" }
+                : new StatusMovimentacao { Nome = "Finalizada" },
+            Classificacao = Valor >= 0
+                ? TipoClassificacaoMovimentacao.Receita
+                : TipoClassificacaoMovimentacao.Despesa
+        };
+
+        await OnSave.InvokeAsync(nova);
+    }
+}

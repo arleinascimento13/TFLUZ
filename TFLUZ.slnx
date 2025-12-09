@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TFLUZ.CORE/TFLUZ.CORE.csproj" />
+  <Project Path="TFLUZ/TFLUZ.csproj" />
+</Solution>
