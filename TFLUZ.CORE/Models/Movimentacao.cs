@@ -9,6 +9,7 @@
         public StatusMovimentacao Status { get; set; }
         public TipoClassificacaoMovimentacao Classificacao { get; set; }
         public DescricaoMovimentacao Descricao { get; set; }
+        public bool Ativo { get; set; } = true;
 
         public Movimentacao() { } // EF Constructor
 

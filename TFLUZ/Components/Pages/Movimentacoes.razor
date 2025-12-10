@@ -9,8 +9,7 @@
 
 <h1>@Title</h1>
 
-<Grid 
-    @ref="grid"
+<Grid @ref="grid"
       TItem="Movimentacao"
       Class="table table-striped table-bordered"
       AllowFiltering="false"
@@ -19,46 +18,73 @@
       AutoHidePaging="true"
       RowClass="DefinirCorLinha"
       DataProvider="MovimentacoesDataProvider">
-    <GridColumns>
+    <!-- DATA -->
+    <GridColumn TItem="Movimentacao" HeaderText="Data">
+        @context.Data.ToString("dd/MM/yyyy")
+    </GridColumn>
 
-        <!-- DATA -->
-        <GridColumn TItem="Movimentacao" HeaderText="Data">
-            @context.Data.ToString("dd/MM/yyyy")
-        </GridColumn>
+    <!-- VALOR FORMATADO -->
+    <GridColumn TItem="Movimentacao" HeaderText="Valor (R$)">
+        @context.Valor.ToString("C2")
+    </GridColumn>
 
-        <!-- VALOR FORMATADO -->
-        <GridColumn TItem="Movimentacao" HeaderText="Valor (R$)">
-            @context.Valor.ToString("C2")
-        </GridColumn>
+    <!-- STATUS (PENDENTE / FINALIZADA) -->
+    <GridColumn TItem="Movimentacao" HeaderText="Status">
+        @context.Status.Nome
+    </GridColumn>
 
-        <!-- STATUS (PENDENTE / FINALIZADA) -->
-        <GridColumn TItem="Movimentacao" HeaderText="Status">
-            @context.Status.Nome
-        </GridColumn>
+    <!-- CLASSIFICAÇÃO (RECEITA / DESPESA) -->
+    <GridColumn TItem="Movimentacao" HeaderText="Tipo">
+        @((int)context.Classificacao == 1 ? "RECEITA" : "DESPESA")
+    </GridColumn>
+    <!-- AÇÕES -->
+    <GridColumn TItem="Movimentacao" HeaderText="Ações">
+        <!-- Botão visualizar -->
+        <Button Size="ButtonSize.Small"
+                Color="ButtonColor.Info"
+                @onclick="() => Visualizar(context.Id)">
+            <i class="bi bi-eye"></i>
+        </Button>
 
-        <!-- CLASSIFICAÇÃO (RECEITA / DESPESA) -->
-        <GridColumn TItem="Movimentacao" HeaderText="Tipo">
-            @((int)context.Classificacao == 1 ? "RECEITA" : "DESPESA")
-        </GridColumn>
-    </GridColumns>
+        <!-- Botão inativar -->
+        <Button Size="ButtonSize.Small"
+                Color="ButtonColor.Danger"
+                @onclick="() => Inativar(context.Id)">
+            <i class="bi bi-x-circle"></i>
+        </Button>
+    </GridColumn>
 </Grid>
 
-<Button Color="ButtonColor.Primary" @onclick="OpenModal">Nova Movimentação</Button>
+<Button Color="ButtonColor.Primary" @onclick="() => OpenModal()">Nova Movimentação</Button>
 
 <Modal @ref="modal"
-       Title="Nova movimentação"
+       Title="@modalTitle"
        UseStaticBackdrop="true"
        CloseOnEscape="false"
        IsVerticallyCentered="true"
        IsScrollable="true">
+
     <BodyTemplate>
         <MovimentacaoModal @ref="modalComponent"
-                           Title="Nova Movimentação"
-                           IsOpen="true"
+                           Title="@modalTitle"
+                           SomenteLeitura="@somenteLeitura"
                            OnSave="ReceberMovimentacao" />
     </BodyTemplate>
+
     <FooterTemplate>
-        <Button Color="ButtonColor.Secondary" @onclick="CloseModal">Cancelar</Button>
-        <Button Color="ButtonColor.Primary" @onclick="() => modalComponent.Salvar()">Salvar</Button>
+        @if (!somenteLeitura)
+        {
+            <Button Color="ButtonColor.Secondary" @onclick="CloseModal">Cancelar</Button>
+            <Button Color="ButtonColor.Primary" @onclick="() => modalComponent.Salvar()">Salvar</Button>
+        }
+        else
+        {
+            <Button Color="ButtonColor.Secondary" @onclick="CloseModal">Fechar</Button>
+        }
     </FooterTemplate>
 </Modal>
+
+
+@code {
+
+}

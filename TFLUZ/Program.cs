@@ -87,12 +87,6 @@ void SeedDatabase(WebApplication app)
 
     db.StatusMovimentacoes.AddRange(statusPendente, statusConcluido);
 
-    // --- Popular Descrições ---
-    var descSalario = new DescricaoMovimentacaoEntity { Id = 1, Nome = "Salário" };
-    var descMercado = new DescricaoMovimentacaoEntity { Id = 2, Nome = "Mercado" };
-
-    db.DescricoesMovimentacao.AddRange(descSalario, descMercado);
-
     // --- Popular Movimentações ---
     var mov1 = new MovimentacaoEntity
     {
@@ -102,7 +96,7 @@ void SeedDatabase(WebApplication app)
         Observacao = "Pagamento mensal",
         Classificacao = 1, // Receita
         StatusId = statusConcluido.Id,
-        DescricaoId = descSalario.Id
+        Ativo = true,
     };
 
     var mov2 = new MovimentacaoEntity
@@ -113,7 +107,7 @@ void SeedDatabase(WebApplication app)
         Observacao = "Compras no mercado",
         Classificacao = 2, // Despesa
         StatusId = statusPendente.Id,
-        DescricaoId = descMercado.Id
+        Ativo = true,
     };
 
     db.Movimentacoes.AddRange(mov1, mov2);

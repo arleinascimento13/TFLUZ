@@ -4,7 +4,7 @@
 
 <EditForm Model="@model" OnValidSubmit="@Salvar">
     <DataAnnotationsValidator />
-    <ValidationSummary />
+    @* <ValidationSummary /> *@
 
     <div class="row g-3">
 
@@ -13,7 +13,8 @@
             <label class="form-label">Valor da movimentação:</label>
             <CurrencyInput @bind-Value="model.Valor"
                            TValue="decimal"
-                           Locale="pt-BR" />
+                           Locale="pt-BR"
+                           Disabled="SomenteLeitura" />
             <ValidationMessage For="@(() => model.Valor)" />
         </div>
 
@@ -21,7 +22,8 @@
         <div class="col-12">
             <label class="form-label">Data:</label>
             <DateInput @bind-Value="model.Data"
-                       TValue="DateTime" />
+                       TValue="DateTime"
+                       Disabled="SomenteLeitura" />
             <ValidationMessage For="@(() => model.Data)" />
         </div>
 
@@ -53,10 +55,11 @@
         <!-- Observação -->
         <div class="col-12">
             <label class="form-label">Observação:</label>
-            <textarea class="form-control"
-                      rows="3"
-                      maxlength="500"
-                      @bind="model.Observacao"></textarea>
+            <TextAreaInput Label="Observação"
+                           @bind-Value="model.Observacao"
+                           MaxLength="500"
+                           Rows="3"
+                           Disabled="SomenteLeitura"></TextAreaInput>
             <ValidationMessage For="@(() => model.Observacao)" />
         </div>
 
@@ -64,16 +67,9 @@
         <div class="col-12">
             <CheckboxInput Label="Pendente?"
                            Id="pendenteCheck"
+                           Disabled="SomenteLeitura"
                            @bind-Value="model.Pendente" />
         </div>
-
-        <!-- Botão -->
-        <div class="col-12">
-            <Button Color="ButtonColor.Primary" Type="ButtonType.Submit" IsFullWidth="true">
-                Salvar
-            </Button>
-        </div>
-
     </div>
 </EditForm>
 
@@ -84,6 +80,7 @@
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback OnOpen { get; set; }
     [Parameter] public EventCallback<Movimentacao> OnSave { get; set; }
+    [Parameter] public bool SomenteLeitura { get; set; }
 
     private MovimentacaoRequestDTO model = new MovimentacaoRequestDTO();
 
@@ -101,20 +98,43 @@
 
     public async Task Salvar()
     {
+        if (SomenteLeitura)
+            return;
+
         var nova = new Movimentacao
         {
-            Valor = Valor ?? 0,
-            Data = Data,
-            // Descricao = new DescricaoMovimentacao { Nome = itemSelecionado },
-            Observacao = Observacao,
-            Status = ehPendente
-                ? new StatusMovimentacao { Nome = "Pendente" }
-                : new StatusMovimentacao { Nome = "Finalizada" },
-            Classificacao = Valor >= 0
+            Data = model.Data,
+            Valor = model.Valor,
+            Observacao = model.Observacao,
+            Status = new StatusMovimentacao
+            {
+                Nome = model.Pendente ? "Pendente" : "Finalizada"
+            },
+            Classificacao = model.Valor >= 0
                 ? TipoClassificacaoMovimentacao.Receita
                 : TipoClassificacaoMovimentacao.Despesa
         };
 
         await OnSave.InvokeAsync(nova);
+    }
+
+    public async Task PreencherDados(Movimentacao mov)
+    {
+        if (mov == null) return;
+
+        model = new MovimentacaoRequestDTO
+        {
+            Data = mov.Data,
+            Valor = mov.Valor,
+            Observacao = mov.Observacao,
+            Pendente = mov.Status?.Nome == "Pendente"
+        };
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Limpar()
+    {
+        model = new MovimentacaoRequestDTO();
     }
 }

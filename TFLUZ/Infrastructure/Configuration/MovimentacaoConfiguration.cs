@@ -40,6 +40,10 @@ namespace TFLUZ.Infrastructure.Configuration
                    .HasForeignKey(m => m.DescricaoId)
                    .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Property(m => m.Ativo)
+                   .IsRequired()
+                   .HasDefaultValue(true);
+
             builder.HasIndex(m => m.Data);
         }
     }

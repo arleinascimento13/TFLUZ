@@ -9,5 +9,6 @@ namespace TFLUZ.Application.DTO
         public decimal Valor { get; set; }
         public StatusMovimentacao StatusMovimentacao { get; set; }
         public TipoClassificacaoMovimentacao TipoClassificacao { get; set; }
+        public bool Ativo { get; set; }
     }
 }

@@ -12,11 +12,12 @@ namespace TFLUZ.Components.Pages
         private Modal modal;
         private Grid<Movimentacao> grid;
 
+        private string modalTitle = "";
+        private bool somenteLeitura = false;
+
         [Inject] private IMovimentacaoService _service { get; set; }
 
         public string Title { get; set; } = "Movimentações";
-
-        //public List<Movimentacao> MovimentacoesList { get; set; } = new List<Movimentacao>(); // alterar para chamar serviço de listagem
 
         protected override async Task OnInitializedAsync()
         {
@@ -31,17 +32,8 @@ namespace TFLUZ.Components.Pages
 
         public async Task ReceberMovimentacao(Movimentacao dto)
         {
-            //var novaMov = new Movimentacao
-            //{
-            //    Valor = dto.Valor,
-            //    Data = dto.Data,
-            //    Observacao = dto.Observacao,
-            //    Status = dto.Status,
-            //    Descricao = dto.Descricao,
-            //    Classificacao = dto.Classificacao
-            //};
 
-            await _service.AdicionarAsync(dto); //alterar para chamar serviço de adicionar
+            await _service.AdicionarAsync(dto); 
 
             await grid.RefreshDataAsync();
             await modal.HideAsync();
@@ -50,8 +42,35 @@ namespace TFLUZ.Components.Pages
 
         private async Task OpenModal()
         {
+            modalTitle = "Nova movimentação";
+            somenteLeitura = false;
             await modal.ShowAsync();
+            modalComponent?.Limpar();
         }
+
+        private async Task Visualizar(int id)
+        {
+            var data = await _service.BuscarPorIdAsync(id);
+
+            modalTitle = "Visualizar movimentação";
+            somenteLeitura = true;
+
+            await modal.ShowAsync();
+
+            modalComponent.Limpar();
+            await modalComponent.PreencherDados(data);
+        }
+
+        private async Task Inativar(int id)
+        {
+            //var data = await _service.BuscarPorIdAsync(id);
+            //modalTitle = "Editar movimentação";
+            //somenteLeitura = false;
+            //await modal.ShowAsync();
+            //modalComponent.Limpar();
+            //await modalComponent.PreencherDados(data);
+        }
+
 
         private async Task CloseModal()
         {

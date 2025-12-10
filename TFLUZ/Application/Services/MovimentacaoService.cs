@@ -2,6 +2,7 @@
 using TFLUZ.Application.Interfaces;
 using TFLUZ.Core.Models;
 using TFLUZ.Infrastructure.Interfaces;
+using TFLUZ.Infrastructure.Models;
 
 namespace TFLUZ.Application.Services
 {
@@ -22,14 +23,16 @@ namespace TFLUZ.Application.Services
             _descricaoRepository = descricaoRepository;
             _mapper = mapper;
         }
-        public Task AdicionarAsync(Movimentacao model)
+        public async Task AdicionarAsync(Movimentacao model)
         {
-            throw new NotImplementedException();
+            var _entity = _mapper.Map<MovimentacaoEntity>(model);
+            await _repository.AdicionarAsync(_entity);
         }
 
-        public Task<Movimentacao> BuscarPorIdAsync(int id)
+        public async Task<Movimentacao> BuscarPorIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var _mov = await _repository.BuscarPorIdAsync(id);
+            return _mapper.Map<Movimentacao>(_mov);
         }
 
         public async Task<List<Movimentacao>> ListarAsync()

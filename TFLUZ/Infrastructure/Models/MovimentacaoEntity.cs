@@ -23,6 +23,7 @@
         // Relacionamento com Descricao
         public int? DescricaoId { get; set; }
         public DescricaoMovimentacaoEntity Descricao { get; set; }
+        public bool Ativo { get; set; }
 
         // Construtor vazio para EF
         public MovimentacaoEntity() { }
