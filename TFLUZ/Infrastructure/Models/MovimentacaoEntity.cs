@@ -14,7 +14,8 @@
         public string Observacao { get; set; }
 
         // Guardamos a classificação como int (não referenciamos o enum do Core aqui)
-        public int Classificacao { get; set; }
+        public int? ClassificacaoId { get; set; }
+        public ClassificacaoMovimentacaoEntity Classificacao { get; set; }
 
         // Relacionamento com Status
         public int? StatusId { get; set; }

@@ -1,0 +1,90 @@
+﻿@page "/descricao"
+@using TFLUZ.Application.Interfaces
+@using TFLUZ.Components.Shared
+@using TFLUZ.Core.Models
+@using TFLUZ.Utils
+
+<h3>Descricao</h3>
+<Grid @ref="grid"
+	  TItem="DescricaoMovimentacao"
+	  Class="table table-bordered table-auto"
+	  AllowFiltering="false"
+	  Responsive="true"
+	  AllowPaging="true"
+	  AutoHidePaging="true"
+	  DataProvider="DescricaoMovimentacaoDataProvider">
+	<GridColumns>
+		<GridColumn TItem="DescricaoMovimentacao" HeaderText="Número de Identificação">
+			@context.Id
+		</GridColumn>
+		<GridColumn TItem="DescricaoMovimentacao" HeaderText="Descrição">
+			@context.Nome
+		</GridColumn>
+	</GridColumns>
+</Grid>
+
+<Button Color="ButtonColor.Primary" @onclick="OpenModal">Nova descrição</Button>
+
+<Modal @ref="modal"
+	   Title="modalTitle"
+	   UseStaticBackdrop="true"
+	   CloseOnEscape="false"
+	   IsVerticallyCentered="true"
+	   IsScrollable="true">
+
+	<BodyTemplate>
+		<DescricaoModal @ref="modalComponent"
+						OnSave="ReceberDescricao" />
+	</BodyTemplate>
+
+	<FooterTemplate>
+		<Button Color="ButtonColor.Secondary" @onclick="CloseModal">Cancelar</Button>
+		<Button Color="ButtonColor.Primary" @onclick="() => modalComponent.Salvar()">Salvar</Button>
+	</FooterTemplate>
+</Modal>
+
+@code {
+	private Modal modal;
+	private DescricaoModal modalComponent;
+	private Grid<DescricaoMovimentacao> grid;
+	[Inject] private IDescricaoMovimentacaoService _service { get; set; }
+	private string modalTitle = "";
+
+	private async Task<GridDataProviderResult<DescricaoMovimentacao>> DescricaoMovimentacaoDataProvider(GridDataProviderRequest<DescricaoMovimentacao> request)
+	{
+		var _mov = await _service.ListarAsync();
+		return await Task.FromResult(request.ApplyTo(_mov));
+	}
+
+	private async Task CloseModal()
+	{
+		await modal.HideAsync();
+	}
+
+	public async Task ReceberDescricao(DescricaoMovimentacao dto)
+	{
+
+		await _service.AdicionarAsync(dto);
+
+		await grid.RefreshDataAsync();
+		await modal.HideAsync();
+		StateHasChanged();
+	}
+
+	private async Task OpenModal()
+	{
+		modalTitle = "Nova descrição";
+		await modal.ShowAsync();
+		modalComponent?.Limpar();
+	}
+
+	private async Task Inativar(int id)
+	{
+		//var data = await _service.BuscarPorIdAsync(id);
+		//modalTitle = "Editar movimentação";
+		//somenteLeitura = false;
+		//await modal.ShowAsync();
+		//modalComponent.Limpar();
+		//await modalComponent.PreencherDados(data);
+	}
+}

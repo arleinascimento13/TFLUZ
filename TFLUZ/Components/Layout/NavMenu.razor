@@ -1,23 +1,38 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">TFLUZ</a>
-    </div>
-</div>
+﻿<Sidebar2 @ref="sidebar"
+		  Href="/"
+		  ImageSrc=""
+		  BadgeText="v1.0"
+		  Title="TFLuz"
+		  
+		  DataProvider="Sidebar2DataProvider" />
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+@code {
+	Sidebar2 sidebar = default!;
+	IEnumerable<NavItem>? navItems;
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="dashboard" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Dashboard
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="movimentacoes" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Movimentações
-            </NavLink>
-        </div>
-    </nav>
-</div>
+	private async Task<Sidebar2DataProviderResult> Sidebar2DataProvider(Sidebar2DataProviderRequest request)
+	{
+		if (navItems is null)
+			navItems = GetNavItems();
 
+		await Task.Delay(2000);
+
+		return await Task.FromResult(request.ApplyTo(navItems));
+	}
+
+	private IEnumerable<NavItem> GetNavItems()
+	{
+		navItems = new List<NavItem>
+		{
+			new NavItem { Id = "1", Href = "/dashboard", IconName = IconName.PieChartFill, Text = "Dashboard"},
+
+			new NavItem { Id = "2", Href = "/movimentacoes", IconName = IconName.HouseAddFill, Text = "Movimentações" },
+
+			new NavItem { Id = "3", IconName = IconName.Sliders2, Text = "Configurações"},
+
+			new NavItem { Id = "4", Href = "/descricao", IconName = IconName.ExclamationTriangleFill, Text = "Descricoes", ParentId="3" },
+		};
+
+		return navItems;
+	}
+}

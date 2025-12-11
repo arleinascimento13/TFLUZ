@@ -35,6 +35,7 @@ namespace TFLUZ.Infrastructure.Repositories
             return await _context.Movimentacoes
                 .Include(s => s.Status)
                 .Include(x => x.Descricao)
+                .Include(z => z.Classificacao)
                 .ToListAsync();
         }
     }

@@ -23,21 +23,24 @@ namespace TFLUZ.Infrastructure.Configuration
                    .HasMaxLength(500)
                    .IsRequired(false);
 
-            // armazenamos Classificacao como int
-            builder.Property(m => m.Classificacao)
-                   .HasColumnName("Classificacao")
-                   .IsRequired();
-
-            // relacionamento Movimentacao -> Status (N:1)
-            builder.HasOne(m => m.Status)
-                   .WithMany()
-                   .HasForeignKey(m => m.StatusId)
+            // armazenamos  como int
+            // relacionamento Movimentacao -> Classificacao(1:1)
+            builder.HasOne(m => m.Classificacao)
+                   .WithOne()
+                   .HasForeignKey<ClassificacaoMovimentacaoEntity>(c => c.Id)
                    .OnDelete(DeleteBehavior.Restrict);
 
-            // relacionamento Movimentacao -> Descricao (N:1)
+
+            // relacionamento Movimentacao -> Status (1:1)
+            builder.HasOne(m => m.Status)
+                   .WithOne()
+                   .HasForeignKey<StatusMovimentacaoEntity>(s => s.Id)
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            // relacionamento Movimentacao -> Descricao (1:1)
             builder.HasOne(m => m.Descricao)
-                   .WithMany()
-                   .HasForeignKey(m => m.DescricaoId)
+                   .WithOne()
+                   .HasForeignKey<DescricaoMovimentacaoEntity>(d => d.Id)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(m => m.Ativo)

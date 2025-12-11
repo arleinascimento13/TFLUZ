@@ -1,0 +1,44 @@
+﻿@using TFLUZ.Core.Models
+<EditForm Model="@model" OnValidSubmit="@Salvar">
+	<DataAnnotationsValidator />
+	@* <ValidationSummary /> *@
+	<div class="row g-3">
+
+		<!-- Descrição -->
+		<div class="col-12">
+			<label class="form-label">Descrição:</label>
+			<TextAreaInput @bind-Value="model.Nome"
+						   TValue="string"
+						   Locale="pt-BR" />
+			<ValidationMessage For="@(() => model.Nome)" />
+		</div>
+	</div>
+</EditForm>
+
+@code
+{
+	[Parameter] public string Title { get; set; }
+	[Parameter] public bool IsOpen { get; set; }
+	[Parameter] public EventCallback OnClose { get; set; }
+	[Parameter] public EventCallback OnOpen { get; set; }
+	[Parameter] public EventCallback<DescricaoMovimentacao> OnSave { get; set; }
+
+	private DescricaoMovimentacao model = new DescricaoMovimentacao();
+
+	private string Descricao = "";
+
+	public async void Salvar()
+	{
+		var nova = new DescricaoMovimentacao
+			{
+				Nome = model.Nome
+			};
+
+		await OnSave.InvokeAsync(nova);
+	}
+
+	public void Limpar()
+	{
+		model = new DescricaoMovimentacao();
+	}
+}

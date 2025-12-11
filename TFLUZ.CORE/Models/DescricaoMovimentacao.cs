@@ -1,8 +1,10 @@
-﻿namespace TFLUZ.Core.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TFLUZ.Core.Models
 {
     public class DescricaoMovimentacao
     {
         public int Id { get; set; }
-        public string Nome { get; set; }
+        [Display(Name = "Descrição")] [StringLength(200)] public string Nome { get; set; }
     }
 }

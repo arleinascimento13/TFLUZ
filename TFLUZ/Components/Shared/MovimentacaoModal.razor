@@ -1,100 +1,106 @@
 ﻿@using System.ComponentModel.DataAnnotations
-@using TFLUZ.Application.DTO
 @using TFLUZ.Core.Models
 
-<EditForm Model="@model" OnValidSubmit="@Salvar">
+<EditForm Model="@Model" OnValidSubmit="@Salvar">
     <DataAnnotationsValidator />
-    @* <ValidationSummary /> *@
 
     <div class="row g-3">
-
         <!-- Valor -->
         <div class="col-12">
             <label class="form-label">Valor da movimentação:</label>
-            <CurrencyInput @bind-Value="model.Valor"
+            <CurrencyInput @bind-Value="Model.Valor"
                            TValue="decimal"
                            Locale="pt-BR"
                            Disabled="SomenteLeitura" />
-            <ValidationMessage For="@(() => model.Valor)" />
+            <ValidationMessage For="@(() => Model.Valor)" />
         </div>
 
         <!-- Data -->
         <div class="col-12">
             <label class="form-label">Data:</label>
-            <DateInput @bind-Value="model.Data"
+            <DateInput @bind-Value="Model.Data"
                        TValue="DateTime"
                        Disabled="SomenteLeitura" />
-            <ValidationMessage For="@(() => model.Data)" />
+            <ValidationMessage For="@(() => Model.Data)" />
         </div>
 
-        <!-- Descrição -->
-        @* <div class="col-12">
+        <!-- Status (usando Descricoes) -->
+        <div class="col-12">
             <label class="form-label">Descrição:</label>
 
-            <Dropdown>
-                <DropdownToggleButton>
-                    @(string.IsNullOrEmpty(model.Descricao)
-                                        ? "Selecione um item"
-                                        : model.Descricao)
-                </DropdownToggleButton>
-
+            <Dropdown Disabled="SomenteLeitura">
+                <DropdownToggleButton>@(itemSelecionado == 0 ? "Selecione um status" : ObterNome(itemSelecionado))</DropdownToggleButton>
                 <DropdownMenu>
-                    @foreach (var item in listaItens)
+                    @if (Descricoes is not null)
                     {
-                        <DropdownItem Type="DropdownItemType.Button"
-                                      @onclick="() => SelecionarItem(item)">
-                            @item
+                        @foreach (var item in Descricoes)
+                        {
+                            <DropdownItem Type="DropdownItemType.Button"
+                                          @onclick="() => SelecionarItem(item.Id)">
+                                @item.Nome
+                            </DropdownItem>
+                        }
+                    }
+                    else
+                    {
+                        <DropdownItem Type="DropdownItemType.Button" Disabled="true">
+                            Carregando...
                         </DropdownItem>
                     }
                 </DropdownMenu>
             </Dropdown>
-
-            <ValidationMessage For="@(() => model.Descricao)" />
-        </div> *@
+        </div>
 
         <!-- Observação -->
         <div class="col-12">
             <label class="form-label">Observação:</label>
-            <TextAreaInput Label="Observação"
-                           @bind-Value="model.Observacao"
+            <TextAreaInput @bind-Value="Model.Observacao"
                            MaxLength="500"
                            Rows="3"
                            Disabled="SomenteLeitura"></TextAreaInput>
-            <ValidationMessage For="@(() => model.Observacao)" />
-        </div>
-
-        <!-- Status -->
-        <div class="col-12">
-            <CheckboxInput Label="Pendente?"
-                           Id="pendenteCheck"
-                           Disabled="SomenteLeitura"
-                           @bind-Value="model.Pendente" />
+            <ValidationMessage For="@(() => Model.Observacao)" />
         </div>
     </div>
 </EditForm>
 
 @code {
     // parâmetros do modal
-    [Parameter] public string Title { get; set; }
-    [Parameter] public bool IsOpen { get; set; }
-    [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public EventCallback OnOpen { get; set; }
-    [Parameter] public EventCallback<Movimentacao> OnSave { get; set; }
     [Parameter] public bool SomenteLeitura { get; set; }
+    [Parameter] public EventCallback<Movimentacao> OnSave { get; set; }
+    [Parameter] public List<DescricaoMovimentacao> Descricoes { get; set; }
 
-    private MovimentacaoRequestDTO model = new MovimentacaoRequestDTO();
+    private Movimentacao Model = new Movimentacao();
+    private int itemSelecionado;
 
-    // campos do formulário
-    private DateTime Data = DateTime.Now;
-    private decimal? Valor = null;
-    private bool ehPendente = false;
-    private string Observacao = "";
-    private string itemSelecionado;
+    protected override Task OnParametersSetAsync()
+    {
+        // garante consistência quando Descricoes ou SomenteLeitura mudar
+        if (SomenteLeitura)
+        {
+            // evite mudanças no model quando em leitura
+        }
+        else
+        {
+            // se não há item selecionado ainda e existem descrições, selecione padrão (opcional)
+            // if (itemSelecionado == 0 && Descricoes is { Count: > 0 })
+            //     itemSelecionado = Descricoes.First().Id;
+        }
 
-    // private void SelecionarItem(string item)
-    // {
-    //     itemSelecionado = item;
-    // }
+        return Task.CompletedTask;
+    }
+
+    private void SelecionarItem(int id)
+    {
+        itemSelecionado = id;
+
+        // se sua Movimentacao tem vínculo com Descricao:
+        // Model.DescricaoMovimentacaoId = id; // exemplo
+        // ou se o "Status" é derivado do item selecionado:
+        // Model.Status = Descricoes?.FirstOrDefault(x => x.Id == id)?.Nome;
+    }
+
+    private string ObterNome(int id) =>
+        Descricoes?.FirstOrDefault(x => x.Id == id)?.Nome ?? "Selecione um status";
 
     public async Task Salvar()
     {
@@ -103,16 +109,13 @@
 
         var nova = new Movimentacao
         {
-            Data = model.Data,
-            Valor = model.Valor,
-            Observacao = model.Observacao,
-            Status = new StatusMovimentacao
-            {
-                Nome = model.Pendente ? "Pendente" : "Finalizada"
-            },
-            Classificacao = model.Valor >= 0
-                ? TipoClassificacaoMovimentacao.Receita
-                : TipoClassificacaoMovimentacao.Despesa
+            Data = Model.Data,
+            Valor = Model.Valor,
+            Observacao = Model.Observacao,
+            Status = Model.Status,
+            Classificacao = Model.Classificacao,
+            // Ex.: vincular descrição selecionada
+            // DescricaoMovimentacaoId = itemSelecionado
         };
 
         await OnSave.InvokeAsync(nova);
@@ -122,19 +125,24 @@
     {
         if (mov == null) return;
 
-        model = new MovimentacaoRequestDTO
+        Model = new Movimentacao
         {
             Data = mov.Data,
             Valor = mov.Valor,
             Observacao = mov.Observacao,
-            Pendente = mov.Status?.Nome == "Pendente"
+            Status = mov.Status,
+            Classificacao = mov.Classificacao
         };
+
+        // se o mov tem uma descrição vinculada, sincronize o dropdown:
+        // itemSelecionado = mov.DescricaoMovimentacaoId;
 
         await InvokeAsync(StateHasChanged);
     }
 
     public void Limpar()
     {
-        model = new MovimentacaoRequestDTO();
+        Model = new Movimentacao();
+        itemSelecionado = 0;
     }
 }

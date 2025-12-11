@@ -1,5 +1,4 @@
 ﻿@page "/movimentacoes"
-@using TFLUZ.Application.DTO
 @using TFLUZ.Components.Shared
 @using TFLUZ.Core.Models
 
@@ -9,6 +8,8 @@
 
 <h1>@Title</h1>
 
+@* RowClass="DefinirCorLinha" *@
+
 <Grid @ref="grid"
       TItem="Movimentacao"
       Class="table table-striped table-bordered"
@@ -16,7 +17,7 @@
       Responsive="true"
       AllowPaging="true"
       AutoHidePaging="true"
-      RowClass="DefinirCorLinha"
+      
       DataProvider="MovimentacoesDataProvider">
     <!-- DATA -->
     <GridColumn TItem="Movimentacao" HeaderText="Data">
@@ -35,7 +36,7 @@
 
     <!-- CLASSIFICAÇÃO (RECEITA / DESPESA) -->
     <GridColumn TItem="Movimentacao" HeaderText="Tipo">
-        @((int)context.Classificacao == 1 ? "RECEITA" : "DESPESA")
+        @(context.Classificacao.Nome)
     </GridColumn>
     <!-- AÇÕES -->
     <GridColumn TItem="Movimentacao" HeaderText="Ações">
@@ -66,7 +67,7 @@
 
     <BodyTemplate>
         <MovimentacaoModal @ref="modalComponent"
-                           Title="@modalTitle"
+                           Descricoes="@Descricoes"
                            SomenteLeitura="@somenteLeitura"
                            OnSave="ReceberMovimentacao" />
     </BodyTemplate>

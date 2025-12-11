@@ -10,6 +10,7 @@ namespace TFLUZ.Infrastructure
         public DbSet<MovimentacaoEntity> Movimentacoes { get; set; }
         public DbSet<DescricaoMovimentacaoEntity> DescricoesMovimentacao { get; set; }
         public DbSet<StatusMovimentacaoEntity> StatusMovimentacoes { get; set; }
+        public DbSet<ClassificacaoMovimentacaoEntity> ClassificacaoMovimentacao { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -18,6 +19,7 @@ namespace TFLUZ.Infrastructure
             modelBuilder.ApplyConfiguration(new MovimentacaoConfiguration());
             modelBuilder.ApplyConfiguration(new DescricaoMovimentacaoConfiguration());
             modelBuilder.ApplyConfiguration(new StatusMovimentacaoConfiguration());
+            modelBuilder.ApplyConfiguration(new ClassificacaoMovimentacaoConfiguration());
 
             base.OnModelCreating(modelBuilder);
         }
